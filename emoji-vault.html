@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Emoji Vault — tap to copy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F5EF;
+    --paper:#FFFFFF;
+    --ink:#1F2430;
+    --ink-soft:#5A6072;
+    --line:#DCDFCF;
+    --yellow:#FFC94A;
+    --coral:#FF6B5E;
+    --teal:#2F9C8F;
+    --lavender:#8E8FFA;
+    --shadow: 0 10px 24px -12px rgba(31,36,48,0.25);
+    --radius: 16px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      radial-gradient(circle at 1px 1px, rgba(31,36,48,0.06) 1px, transparent 0) 0 0/22px 22px,
+      var(--bg);
+    color:var(--ink);
+    font-family:'Inter', system-ui, -apple-system, sans-serif;
+    min-height:100vh;
+    padding-bottom:96px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection{ background:var(--yellow); color:var(--ink); }
+
+  .wrap{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 18px 40px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    text-align:center;
+    margin-bottom: 22px;
+  }
+  .hero .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:6px 12px;
+    border-radius:999px;
+    box-shadow: var(--shadow);
+  }
+  .hero .eyebrow .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--coral);
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse-dot{
+    0%,100%{ transform:scale(1); opacity:1; }
+    50%{ transform:scale(1.4); opacity:0.5; }
+  }
+  h1{
+    font-family:'Baloo 2', system-ui, sans-serif;
+    font-weight:800;
+    font-size: clamp(32px, 7vw, 52px);
+    line-height:1.05;
+    margin: 14px 0 6px;
+    letter-spacing:-0.01em;
+  }
+  h1 span{
+    display:inline-block;
+    animation: wiggle 3.4s ease-in-out infinite;
+    transform-origin: 70% 70%;
+  }
+  @keyframes wiggle{
+    0%,100%{ transform:rotate(0deg); }
+    10%{ transform:rotate(-10deg); }
+    20%{ transform:rotate(9deg); }
+    30%{ transform:rotate(-6deg); }
+    40%{ transform:rotate(0deg); }
+  }
+  .hero p{
+    color:var(--ink-soft);
+    font-size:15.5px;
+    max-width:480px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    position: sticky;
+    top: 10px;
+    z-index: 20;
+    background: rgba(244,245,239,0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 12px;
+    margin: 24px 0 20px;
+    border:1px solid var(--line);
+  }
+
+  .search-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow);
+  }
+  .search-row:focus-within{
+    border-color: var(--ink);
+  }
+  .search-row svg{ flex:none; color:var(--ink-soft); }
+  .search-row input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:transparent;
+    font-family:'Inter', sans-serif;
+    font-size:16.5px;
+    color:var(--ink);
+    min-width:0;
+  }
+  .search-row input::placeholder{ color:#9CA0AE; }
+  .result-count{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    padding-left:4px;
+    border-left:1px solid var(--line);
+  }
+  .clear-btn{
+    border:none; background:var(--bg);
+    width:26px;height:26px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer; color:var(--ink-soft); flex:none;
+    font-size:14px;
+  }
+  .clear-btn:hover{ background:var(--line); color:var(--ink); }
+
+  .cat-row{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding: 12px 2px 2px;
+    scrollbar-width:none;
+  }
+  .cat-row::-webkit-scrollbar{ display:none; }
+
+  .cat-btn{
+    flex:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    color:var(--ink);
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    padding: 9px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cat-btn .ic{ font-size:16px; }
+  .cat-btn:hover{ transform: translateY(-1px); border-color:var(--ink); }
+  .cat-btn.active{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+  .cat-btn.active.hearts{ background:var(--coral); border-color:var(--coral); }
+  .cat-btn.active.symbols{ background:var(--lavender); border-color:var(--lavender); }
+  .cat-btn.active.faces{ background:var(--yellow); color:var(--ink); border-color:var(--yellow); }
+  .cat-btn.active.animals,
+  .cat-btn.active.food,
+  .cat-btn.active.travel{ background:var(--teal); border-color:var(--teal); }
+
+  /* ---------- Grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 10px;
+  }
+  @media (max-width:480px){
+    .grid{ grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap:8px; }
+  }
+
+  .tile{
+    position:relative;
+    aspect-ratio: 1 / 1;
+    min-height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--paper);
+    border-radius: 14px;
+    border: 2px dashed var(--line);
+    cursor:pointer;
+    font-size: 30px;
+    line-height:1;
+    user-select:none;
+    transition: transform .16s cubic-bezier(.34,1.56,.64,1), border-color .16s ease, box-shadow .16s ease;
+    transform: rotate(var(--r, 0deg));
+    touch-action: manipulation;
+  }
+  .tile:hover, .tile:focus-visible{
+    transform: rotate(0deg) translateY(-4px) scale(1.08);
+    border-color: var(--ink);
+    border-style: solid;
+    box-shadow: var(--shadow);
+    z-index:2;
+    outline:none;
+  }
+  .tile:active{ transform: rotate(0deg) translateY(-1px) scale(0.96); }
+  .tile.copied{ animation: pop 0.42s ease; }
+  @keyframes pop{
+    0%{ transform:scale(1); }
+    35%{ transform:scale(1.35) rotate(0deg); }
+    100%{ transform:scale(1) rotate(0deg); }
+  }
+  .tile .variant-dot{
+    position:absolute;
+    bottom:4px; right:4px;
+    width:8px; height:8px;
+    border-radius:50%;
+    background: conic-gradient(from 180deg,#8D5524,#C68642,#E0AC69,#F1C27D,#FFDBAC);
+    border:1.5px solid var(--paper);
+    opacity:0;
+    transition:opacity .15s ease;
+  }
+  .tile:hover .variant-dot,
+  .tile:focus-visible .variant-dot{ opacity:1; }
+
+  /* category flavor wiggle on hover, for a bit of life */
+  .tile[data-c="faces"]:hover{ animation: wiggle 0.6s ease; }
+  .tile[data-c="hearts"]:hover{ animation: beat 0.6s ease; }
+  @keyframes beat{
+    0%,100%{ transform: translateY(-4px) scale(1.08); }
+    50%{ transform: translateY(-4px) scale(1.22); }
+  }
+  .tile[data-c="symbols"]:hover .em,
+  .tile[data-c="flags"]:hover .em{ animation: shimmer 0.7s ease; }
+  @keyframes shimmer{
+    0%,100%{ filter:brightness(1); }
+    50%{ filter:brightness(1.25); }
+  }
+
+  .empty{
+    display:none;
+    text-align:center;
+    padding: 60px 20px;
+    color:var(--ink-soft);
+  }
+  .empty.show{ display:block; }
+  .empty .em{ font-size:42px; display:block; margin-bottom:10px; }
+  .empty b{ color:var(--ink); }
+
+  /* ---------- Variant popup ---------- */
+  .variant-pop{
+    position:fixed;
+    z-index:60;
+    display:flex;
+    gap:6px;
+    background:var(--ink);
+    padding:8px;
+    border-radius:14px;
+    box-shadow: 0 14px 30px -10px rgba(0,0,0,0.4);
+    opacity:0;
+    transform: translateY(6px) scale(0.92);
+    pointer-events:none;
+    transition: opacity .14s ease, transform .14s ease;
+  }
+  .variant-pop.show{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+  .variant-pop button{
+    border:none;
+    background:rgba(255,255,255,0.08);
+    font-size:22px;
+    width:38px;height:38px;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition: background .12s ease, transform .12s ease;
+  }
+  .variant-pop button:hover{ background:rgba(255,255,255,0.22); transform: translateY(-2px); }
+  .variant-pop::after{
+    content:"";
+    position:absolute;
+    bottom:-6px; left:50%;
+    transform: translateX(-50%) rotate(45deg);
+    width:12px;height:12px;
+    background:var(--ink);
+  }
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:28px;
+    transform: translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:#fff;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow: 0 16px 34px -10px rgba(0,0,0,0.45);
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .22s ease, transform .22s ease;
+    z-index:80;
+    max-width: calc(100vw - 32px);
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+  .toast .em{ font-size:20px; }
+
+  /* ---------- Audio widget ---------- */
+  .audio-widget{
+    position:fixed;
+    right:16px;
+    bottom:16px;
+    z-index:70;
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding:6px;
+  }
+  .aw-btn{
+    border:none;
+    background:transparent;
+    width:40px;height:40px;
+    border-radius:50%;
+    font-size:18px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);
+    transition: background .15s ease, transform .15s ease;
+    flex:none;
+  }
+  .aw-btn:hover{ background:var(--bg); transform: scale(1.06); }
+  .aw-btn.on{ background:var(--yellow); }
+  .aw-btn.on.sfx{ background:var(--teal); color:#fff; }
+  .aw-vol{
+    width: 78px;
+    accent-color: var(--ink);
+    cursor:pointer;
+  }
+  .aw-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    color:var(--ink-soft);
+    padding: 0 4px 0 2px;
+    display:none;
+  }
+  @media (min-width:560px){
+    .aw-label{ display:inline; }
+  }
+
+  footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    margin-top:36px;
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hero">
+    <span class="eyebrow"><span class="dot"></span> tap any sticker to copy</span>
+    <h1>Emoji <span>🗂️</span> Vault</h1>
+    <p>A little sticker sheet of emoji. Search by name or mood, filter by category, tap to copy — it lands straight on your clipboard.</p>
+  </div>
+
+  <div class="controls">
+    <div class="search-row">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Search “fire”, “heart”, “dog”…" autocomplete="off" spellcheck="false">
+      <button class="clear-btn" id="clearBtn" title="Clear search" aria-label="Clear search">✕</button>
+      <span class="result-count" id="count">0</span>
+    </div>
+    <div class="cat-row" id="catRow"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">
+    <span class="em">🔍</span>
+    No stickers match <b id="emptyTerm"></b>. Try another word.
+  </div>
+
+  <footer>build your own sheet — no backend, just html · css · js</footer>
+</div>
+
+<div class="toast" id="toast"><span class="em">✨</span><span id="toastMsg">Copied!</span></div>
+<div class="variant-pop" id="variantPop"></div>
+
+<div class="audio-widget">
+  <button class="aw-btn on" id="musicBtn" title="Toggle music" aria-label="Toggle background music">🎵</button>
+  <button class="aw-btn sfx on" id="sfxBtn" title="Toggle click sound" aria-label="Toggle click sound effect">🔊</button>
+  <span class="aw-label">vol</span>
+  <input class="aw-vol" id="volSlider" type="range" min="0" max="100" value="35" aria-label="Volume">
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     1. EMOJI DATA  —  [emoji, search keywords, category, hasVariants]
+     A large hand-curated set spanning the main Unicode emoji
+     groups. "hasVariants" marks entries that support the
+     standard Fitzpatrick skin-tone modifiers (U+1F3FB–1F3FF).
+  ========================================================= */
+  const DATA = [
+    // ---- FACES / SMILEYS & PEOPLE ----
+    ["😀","grinning face grin happy","faces"],
+    ["😃","grinning face big eyes happy joy","faces"],
+    ["😄","grinning smiling eyes happy laugh","faces"],
+    ["😁","beaming face grin happy","faces"],
+    ["😆","grinning squinting laugh happy lol","faces"],
+    ["😅","grinning sweat nervous laugh relief","faces"],
+    ["🤣","rolling floor laughing rofl lol funny","faces"],
+    ["😂","face tears joy laugh cry funny lol","faces"],
+    ["🙂","slightly smiling face happy","faces"],
+    ["🙃","upside down face silly","faces"],
+    ["😉","winking face wink flirt","faces"],
+    ["😊","smiling face blush happy shy","faces"],
+    ["😇","smiling face halo angel innocent","faces"],
+    ["🥰","smiling face hearts love adore crush","faces"],
+    ["😍","heart eyes love crush adore","faces"],
+    ["🤩","star struck excited amazed wow","faces"],
+    ["😘","face blowing kiss love","faces"],
+    ["😗","kissing face","faces"],
+    ["😚","kissing face closed eyes","faces"],
+    ["😙","kissing face smiling eyes","faces"],
+    ["😋","face savoring food yum tongue delicious","faces"],
+    ["😛","face tongue silly playful","faces"],
+    ["😜","winking tongue silly playful","faces"],
+    ["🤪","zany face crazy silly wild","faces"],
+    ["😝","squinting tongue silly","faces"],
+    ["🤑","money mouth face rich greedy cash","faces"],
+    ["🤗","hugging face hug warm","faces"],
+    ["🤭","face hand over mouth oops giggle","faces"],
+    ["🤫","shushing face quiet secret shh","faces"],
+    ["🤔","thinking face hmm ponder wonder","faces"],
+    ["🤐","zipper mouth face quiet secret silent","faces"],
+    ["🤨","raised eyebrow suspicious skeptical","faces"],
+    ["😐","neutral face meh blank","faces"],
+    ["😑","expressionless face blank flat","faces"],
+    ["😶","no mouth face silent","faces"],
+    ["😏","smirking face smug sly","faces"],
+    ["😒","unamused face annoyed meh","faces"],
+    ["🙄","rolling eyes annoyed whatever","faces"],
+    ["😬","grimacing face awkward yikes","faces"],
+    ["🤥","lying face pinocchio nose liar","faces"],
+    ["😌","relieved face calm content peaceful","faces"],
+    ["😔","pensive face sad thoughtful","faces"],
+    ["😪","sleepy face tired nap","faces"],
+    ["🤤","drooling face hungry sleep","faces"],
+    ["😴","sleeping face zzz tired snore","faces"],
+    ["😷","face medical mask sick covid","faces"],
+    ["🤒","face thermometer sick fever ill","faces"],
+    ["🤕","face bandage hurt injured ouch","faces"],
+    ["🤢","nauseated face sick gross yuck","faces"],
+    ["🤮","vomiting face sick gross","faces"],
+    ["🤧","sneezing face sick achoo","faces"],
+    ["🥵","hot face heat sweating warm","faces"],
+    ["🥶","cold face freezing icy","faces"],
+    ["🥴","woozy face dizzy drunk confused","faces"],
+    ["😵","dizzy face knocked out confused","faces"],
+    ["🤯","exploding head mind blown shocked","faces"],
+    ["🤠","cowboy hat face yeehaw western","faces"],
+    ["🥳","partying face celebrate party birthday","faces"],
+    ["😎","sunglasses cool chill","faces"],
+    ["🤓","nerd face glasses geek","faces"],
+    ["🧐","face monocle curious inspect fancy","faces"],
+    ["😕","confused face unsure","faces"],
+    ["😟","worried face concerned","faces"],
+    ["🙁","slightly frowning face sad","faces"],
+    ["☹️","frowning face sad unhappy","faces"],
+    ["😮","open mouth face surprised wow oh","faces"],
+    ["😯","hushed face surprised silent","faces"],
+    ["😲","astonished face shocked wow","faces"],
+    ["😳","flushed face embarrassed blush surprised","faces"],
+    ["🥺","pleading face puppy eyes please begging","faces"],
+    ["😦","frowning open mouth surprised","faces"],
+    ["😧","anguished face shocked pain","faces"],
+    ["😨","fearful face scared afraid","faces"],
+    ["😰","anxious face sweat worried nervous","faces"],
+    ["😥","sad relieved face disappointed","faces"],
+    ["😢","crying face sad tear upset","faces"],
+    ["😭","loudly crying face sob sad bawling","faces"],
+    ["😱","face screaming fear shocked scared","faces"],
+    ["😖","confounded face frustrated ugh","faces"],
+    ["😣","persevering face struggle effort","faces"],
+    ["😞","disappointed face sad letdown","faces"],
+    ["😓","downcast face sweat stressed","faces"],
+    ["😩","weary face tired exhausted ugh","faces"],
+    ["😫","tired face exhausted fed up","faces"],
+    ["🥱","yawning face tired bored sleepy","faces"],
+    ["😤","face steam nose angry triumph huff","faces"],
+    ["😡","pouting face angry mad rage","faces"],
+    ["😠","angry face mad annoyed","faces"],
+    ["🤬","face symbols mouth cursing angry swearing","faces"],
+    ["😈","smiling face horns devil evil mischief","faces"],
+    ["👿","angry face horns devil evil","faces"],
+    ["💀","skull death spooky","faces"],
+    ["☠️","skull crossbones danger poison","faces"],
+    ["💩","pile of poo funny crap","faces"],
+    ["🤡","clown face funny circus","faces"],
+    ["👹","ogre monster oni","faces"],
+    ["👺","goblin monster tengu","faces"],
+    ["👻","ghost spooky halloween boo","faces"],
+    ["👽","alien ufo extraterrestrial","faces"],
+    ["👾","alien monster game invader retro","faces"],
+    ["🤖","robot ai machine bot","faces"],
+    ["👋","waving hand hello hi bye wave","faces",1],
+    ["🤚","raised back hand stop","faces",1],
+    ["🖐️","hand fingers splayed stop","faces",1],
+    ["✋","raised hand stop high five","faces",1],
+    ["🖖","vulcan salute spock","faces",1],
+    ["👌","ok hand okay perfect","faces",1],
+    ["🤏","pinching hand tiny small","faces",1],
+    ["✌️","victory hand peace","faces",1],
+    ["🤞","crossed fingers luck hope","faces",1],
+    ["🤟","love you gesture rock","faces",1],
+    ["🤘","rock on horns metal","faces",1],
+    ["👈","pointing left hand","faces",1],
+    ["👉","pointing right hand","faces",1],
+    ["👆","pointing up hand","faces",1],
+    ["👇","pointing down hand","faces",1],
+    ["☝️","index pointing up hand","faces",1],
+    ["👍","thumbs up like good yes approve","faces",1],
+    ["👎","thumbs down dislike bad no","faces",1],
+    ["✊","raised fist power solidarity","faces",1],
+    ["👊","fist bump punch bro","faces",1],
+    ["🤛","left facing fist bump","faces",1],
+    ["🤜","right facing fist bump","faces",1],
+    ["👏","clapping hands applause bravo yay","faces",1],
+    ["🙌","raising hands celebrate praise yay","faces",1],
+    ["👐","open hands hug welcome","faces",1],
+    ["🤲","palms up together offering pray","faces",1],
+    ["🙏","folded hands pray thanks please","faces",1],
+    ["💪","flexed biceps muscle strong gym","faces",1],
+    ["🤝","handshake deal agreement partnership","faces",1],
+    ["👶","baby infant newborn","faces",1],
+    ["🧑","person adult human","faces",1],
+    ["👨","man adult male guy","faces",1],
+    ["👩","woman adult female girl lady","faces",1],
+    ["🧓","older person senior elder","faces",1],
+    ["👴","old man elder grandpa","faces",1],
+    ["👵","old woman elder grandma","faces",1],
+
+    // ---- HEARTS ----
+    ["❤️","red heart love","hearts"],
+    ["🧡","orange heart love","hearts"],
+    ["💛","yellow heart love friendship","hearts"],
+    ["💚","green heart love nature","hearts"],
+    ["💙","blue heart love calm","hearts"],
+    ["💜","purple heart love","hearts"],
+    ["🖤","black heart love dark","hearts"],
+    ["🤍","white heart love pure","hearts"],
+    ["🤎","brown heart love","hearts"],
+    ["💔","broken heart sad breakup heartbreak","hearts"],
+    ["❤️‍🔥","heart on fire passion love intense","hearts"],
+    ["❤️‍🩹","mending heart healing recovery","hearts"],
+    ["💕","two hearts love affection","hearts"],
+    ["💞","revolving hearts love","hearts"],
+    ["💓","beating heart love pulse heartbeat","hearts"],
+    ["💗","growing heart love excited","hearts"],
+    ["💖","sparkling heart love shiny","hearts"],
+    ["💘","heart arrow cupid love crush","hearts"],
+    ["💝","heart ribbon gift love valentine","hearts"],
+    ["💟","heart decoration love symbol","hearts"],
+    ["♥️","heart suit love card","hearts"],
+    ["💌","love letter mail romance","hearts"],
+    ["😻","heart eyes cat love adore","hearts"],
+    ["💑","couple with heart love romance","hearts"],
+
+    // ---- ANIMALS & NATURE ----
+    ["🐶","dog puppy pet","animals"],
+    ["🐱","cat kitten pet","animals"],
+    ["🐭","mouse rodent","animals"],
+    ["🐹","hamster pet rodent","animals"],
+    ["🐰","rabbit bunny pet","animals"],
+    ["🦊","fox animal","animals"],
+    ["🐻","bear animal","animals"],
+    ["🐼","panda bear animal","animals"],
+    ["🐻‍❄️","polar bear animal cold","animals"],
+    ["🐨","koala animal","animals"],
+    ["🐯","tiger animal","animals"],
+    ["🦁","lion animal king","animals"],
+    ["🐮","cow animal farm","animals"],
+    ["🐷","pig animal farm","animals"],
+    ["🐸","frog animal","animals"],
+    ["🐵","monkey animal","animals"],
+    ["🙈","monkey see no evil","animals"],
+    ["🙉","monkey hear no evil","animals"],
+    ["🙊","monkey speak no evil","animals"],
+    ["🐔","chicken animal farm","animals"],
+    ["🐧","penguin animal bird cold","animals"],
+    ["🐦","bird animal tweet","animals"],
+    ["🐤","baby chick bird","animals"],
+    ["🦆","duck animal bird","animals"],
+    ["🦅","eagle bird animal","animals"],
+    ["🦉","owl bird animal wise","animals"],
+    ["🦇","bat animal night halloween","animals"],
+    ["🐺","wolf animal","animals"],
+    ["🐗","boar animal","animals"],
+    ["🐴","horse animal","animals"],
+    ["🦄","unicorn animal magic fantasy","animals"],
+    ["🐝","bee insect honey buzz","animals"],
+    ["🐛","bug caterpillar insect","animals"],
+    ["🦋","butterfly insect animal","animals"],
+    ["🐌","snail slow animal","animals"],
+    ["🐞","ladybug insect animal","animals"],
+    ["🐜","ant insect animal","animals"],
+    ["🕷️","spider insect creepy","animals"],
+    ["🦂","scorpion animal","animals"],
+    ["🐢","turtle animal slow","animals"],
+    ["🐍","snake animal reptile","animals"],
+    ["🦎","lizard reptile animal","animals"],
+    ["🐙","octopus sea animal","animals"],
+    ["🦑","squid sea animal","animals"],
+    ["🦀","crab sea animal","animals"],
+    ["🐠","tropical fish animal","animals"],
+    ["🐟","fish animal","animals"],
+    ["🐬","dolphin sea animal","animals"],
+    ["🐳","whale spouting sea animal","animals"],
+    ["🐋","whale sea animal","animals"],
+    ["🦈","shark sea animal danger","animals"],
+    ["🐊","crocodile alligator reptile","animals"],
+    ["🌵","cactus plant desert","animals"],
+    ["🌲","evergreen tree plant nature","animals"],
+    ["🌴","palm tree plant tropical","animals"],
+    ["🌸","cherry blossom flower spring","animals"],
+    ["🌻","sunflower flower plant","animals"],
+    ["🌹","rose flower plant love","animals"],
+    ["🍄","mushroom fungus plant","animals"],
+
+    // ---- FOOD & DRINK ----
+    ["🍏","green apple fruit","food"],
+    ["🍎","red apple fruit","food"],
+    ["🍐","pear fruit","food"],
+    ["🍊","orange fruit tangerine citrus","food"],
+    ["🍋","lemon fruit sour citrus","food"],
+    ["🍌","banana fruit","food"],
+    ["🍉","watermelon fruit summer","food"],
+    ["🍇","grapes fruit wine","food"],
+    ["🍓","strawberry fruit berry","food"],
+    ["🫐","blueberries fruit berry","food"],
+    ["🍈","melon fruit","food"],
+    ["🍒","cherries fruit","food"],
+    ["🍑","peach fruit","food"],
+    ["🥭","mango fruit tropical","food"],
+    ["🍍","pineapple fruit tropical","food"],
+    ["🥥","coconut fruit tropical","food"],
+    ["🥝","kiwi fruit","food"],
+    ["🍅","tomato vegetable","food"],
+    ["🍆","eggplant vegetable aubergine","food"],
+    ["🥑","avocado fruit toast","food"],
+    ["🥦","broccoli vegetable healthy","food"],
+    ["🥬","leafy green vegetable lettuce","food"],
+    ["🥒","cucumber vegetable pickle","food"],
+    ["🌶️","hot pepper spicy chili","food"],
+    ["🌽","corn vegetable cob","food"],
+    ["🥕","carrot vegetable","food"],
+    ["🧄","garlic vegetable clove","food"],
+    ["🧅","onion vegetable","food"],
+    ["🥔","potato vegetable","food"],
+    ["🍞","bread loaf bakery","food"],
+    ["🥐","croissant bread pastry french","food"],
+    ["🥖","baguette bread french","food"],
+    ["🧀","cheese wedge dairy","food"],
+    ["🥚","egg breakfast","food"],
+    ["🍳","fried egg cooking breakfast","food"],
+    ["🥞","pancakes breakfast stack","food"],
+    ["🧇","waffle breakfast","food"],
+    ["🥓","bacon breakfast meat","food"],
+    ["🍔","hamburger burger fast food","food"],
+    ["🍟","french fries fast food chips","food"],
+    ["🍕","pizza slice italian","food"],
+    ["🌭","hot dog fast food","food"],
+    ["🥪","sandwich lunch","food"],
+    ["🌮","taco mexican food","food"],
+    ["🌯","burrito mexican food wrap","food"],
+    ["🍜","ramen noodles soup asian","food"],
+    ["🍣","sushi japanese food","food"],
+    ["🍦","soft serve ice cream dessert","food"],
+    ["🍩","doughnut donut dessert sweet","food"],
+    ["🍪","cookie dessert sweet","food"],
+    ["🎂","birthday cake dessert celebrate","food"],
+    ["🍰","shortcake cake dessert slice","food"],
+    ["🍫","chocolate bar dessert sweet","food"],
+    ["🍬","candy sweet dessert","food"],
+    ["🍭","lollipop candy sweet","food"],
+    ["☕","hot coffee drink caffeine","food"],
+    ["🍵","tea hot drink","food"],
+    ["🧋","bubble tea boba drink","food"],
+    ["🍺","beer mug drink alcohol","food"],
+    ["🍷","wine glass drink alcohol","food"],
+    ["🍾","champagne bottle pop celebrate","food"],
+
+    // ---- ACTIVITIES ----
+    ["⚽","soccer ball football sport","activities"],
+    ["🏀","basketball sport hoop","activities"],
+    ["🏈","american football sport","activities"],
+    ["⚾","baseball sport","activities"],
+    ["🎾","tennis ball sport","activities"],
+    ["🏐","volleyball sport","activities"],
+    ["🏓","ping pong table tennis sport","activities"],
+    ["🏸","badminton sport racket","activities"],
+    ["🥊","boxing glove sport fight","activities"],
+    ["🎱","pool billiards eight ball game","activities"],
+    ["⛳","golf sport flag hole","activities"],
+    ["🏹","bow arrow archery sport","activities"],
+    ["🎣","fishing pole rod hobby","activities"],
+    ["🥋","martial arts belt karate judo","activities"],
+    ["🎽","running shirt sport race","activities"],
+    ["🛹","skateboard sport ride","activities"],
+    ["🏂","snowboard sport winter","activities"],
+    ["⛷️","skiing sport winter","activities"],
+    ["🏄","surfing sport wave beach","activities"],
+    ["🏊","swimming sport pool","activities"],
+    ["🚴","cycling bike sport ride","activities"],
+    ["🎮","video game controller gaming","activities"],
+    ["🕹️","joystick gaming retro arcade","activities"],
+    ["🎲","dice game random luck","activities"],
+    ["🧩","puzzle piece game jigsaw","activities"],
+    ["🎯","dart target bullseye game aim","activities"],
+    ["🎳","bowling game strike pins","activities"],
+    ["🎨","palette art paint creative","activities"],
+    ["🎭","performing arts theater masks drama","activities"],
+    ["🎤","microphone singing karaoke music","activities"],
+    ["🎧","headphones music listen audio","activities"],
+    ["🎸","guitar music instrument rock","activities"],
+    ["🎹","piano music instrument keys","activities"],
+    ["🥁","drum music instrument beat","activities"],
+    ["🎬","clapper board movie film director","activities"],
+
+    // ---- TRAVEL & PLACES ----
+    ["🚗","car automobile drive vehicle","travel"],
+    ["🚕","taxi cab vehicle","travel"],
+    ["🚌","bus vehicle transit","travel"],
+    ["🚓","police car vehicle","travel"],
+    ["🚑","ambulance vehicle emergency","travel"],
+    ["🚒","fire truck vehicle emergency","travel"],
+    ["🚚","delivery truck vehicle","travel"],
+    ["🚲","bicycle bike ride","travel"],
+    ["🛴","kick scooter ride","travel"],
+    ["🏍️","motorcycle bike ride","travel"],
+    ["✈️","airplane travel flight fly","travel"],
+    ["🚀","rocket space launch","travel"],
+    ["🛸","flying saucer ufo alien","travel"],
+    ["🚁","helicopter fly vehicle","travel"],
+    ["⛵","sailboat boat sail","travel"],
+    ["🚢","ship boat cruise","travel"],
+    ["⚓","anchor ship sea nautical","travel"],
+    ["🗽","statue of liberty landmark new york","travel"],
+    ["🗼","tower landmark tokyo","travel"],
+    ["🏰","castle landmark fairy tale","travel"],
+    ["🏝️","desert island beach tropical","travel"],
+    ["🏔️","mountain snow peak","travel"],
+    ["🌋","volcano mountain eruption","travel"],
+    ["🏕️","camping tent outdoors","travel"],
+    ["🌇","sunset city dusk","travel"],
+    ["🌃","night city stars skyline","travel"],
+    ["🌆","cityscape dusk skyline","travel"],
+    ["🌉","bridge night skyline","travel"],
+    ["🎡","ferris wheel amusement park fair","travel"],
+    ["🎢","roller coaster amusement park thrill","travel"],
+    ["🗺️","world map travel explore","travel"],
+
+    // ---- OBJECTS ----
+    ["💡","light bulb idea bright","objects"],
+    ["🔦","flashlight torch light","objects"],
+    ["🕯️","candle light flame","objects"],
+    ["📱","mobile phone smartphone tech","objects"],
+    ["💻","laptop computer tech work","objects"],
+    ["⌨️","keyboard computer type","objects"],
+    ["🖥️","desktop computer monitor tech","objects"],
+    ["🖨️","printer office tech","objects"],
+    ["🖱️","computer mouse click tech","objects"],
+    ["💾","floppy disk save tech retro","objects"],
+    ["📷","camera photo picture","objects"],
+    ["🎥","movie camera film video","objects"],
+    ["📺","television tv screen","objects"],
+    ["📻","radio music broadcast","objects"],
+    ["⏰","alarm clock time wake","objects"],
+    ["⌚","watch time wrist","objects"],
+    ["📚","books stack reading study","objects"],
+    ["📖","open book reading study","objects"],
+    ["✏️","pencil write draw school","objects"],
+    ["🖊️","pen write ink","objects"],
+    ["📝","memo note write list","objects"],
+    ["📌","pushpin note pin","objects"],
+    ["📎","paperclip office note","objects"],
+    ["✂️","scissors cut craft","objects"],
+    ["🔒","locked lock security safe","objects"],
+    ["🔑","key unlock security","objects"],
+    ["🔨","hammer tool build fix","objects"],
+    ["🪛","screwdriver tool fix build","objects"],
+    ["🧲","magnet tool attract","objects"],
+    ["💰","money bag cash rich savings","objects"],
+    ["🎁","gift present box surprise","objects"],
+    ["🎈","balloon party celebrate","objects"],
+    ["🎉","party popper confetti celebrate","objects"],
+
+    // ---- SYMBOLS ----
+    ["✨","sparkles shiny magic clean","symbols"],
+    ["⭐","star favorite rating","symbols"],
+    ["🌟","glowing star shiny special","symbols"],
+    ["💫","dizzy star swirl sparkle","symbols"],
+    ["🔥","fire hot lit flame trending","symbols"],
+    ["💥","collision explosion boom impact","symbols"],
+    ["⚡","high voltage lightning bolt power fast","symbols"],
+    ["❄️","snowflake cold winter","symbols"],
+    ["🌈","rainbow colorful pride hope","symbols"],
+    ["☀️","sun sunny weather bright","symbols"],
+    ["🌙","crescent moon night sleep","symbols"],
+    ["☁️","cloud weather sky","symbols"],
+    ["✅","check mark done yes correct","symbols"],
+    ["❌","cross mark no wrong incorrect","symbols"],
+    ["❓","question mark confused unsure","symbols"],
+    ["❗","exclamation mark alert important","symbols"],
+    ["♻️","recycling symbol green eco sustainable","symbols"],
+    ["⚠️","warning sign caution alert","symbols"],
+    ["🔴","red circle dot marker","symbols"],
+    ["🟠","orange circle dot marker","symbols"],
+    ["🟡","yellow circle dot marker","symbols"],
+    ["🟢","green circle dot marker","symbols"],
+    ["🔵","blue circle dot marker","symbols"],
+    ["🟣","purple circle dot marker","symbols"],
+    ["⚪","white circle dot marker","symbols"],
+    ["⚫","black circle dot marker","symbols"],
+    ["💯","hundred points perfect score","symbols"],
+    ["🆗","ok button symbol","symbols"],
+    ["🔞","restricted eighteen plus symbol","symbols"],
+    ["♾️","infinity symbol forever endless","symbols"],
+    ["☮️","peace symbol sign","symbols"],
+    ["☯️","yin yang balance symbol","symbols"],
+
+    // ---- FLAGS ----
+    ["🏳️","white flag surrender peace","flags"],
+    ["🏴","black flag","flags"],
+    ["🏁","checkered flag racing finish","flags"],
+    ["🚩","triangular flag marker location","flags"],
+    ["🏳️‍🌈","rainbow flag pride lgbtq","flags"],
+    ["🇺🇸","united states flag usa america","flags"],
+    ["🇬🇧","united kingdom flag uk britain england","flags"],
+    ["🇨🇦","canada flag canadian","flags"],
+    ["🇯🇵","japan flag japanese","flags"],
+    ["🇩🇪","germany flag german","flags"],
+    ["🇫🇷","france flag french","flags"],
+    ["🇮🇳","india flag indian","flags"],
+    ["🇧🇷","brazil flag brazilian","flags"],
+    ["🇦🇺","australia flag australian","flags"],
+    ["🇰🇷","south korea flag korean","flags"]
+  ];
+
+  const CATS = [
+    { id:"all",        label:"All",        icon:"🗂️" },
+    { id:"faces",      label:"Faces",      icon:"😀" },
+    { id:"hearts",     label:"Hearts",     icon:"❤️" },
+    { id:"animals",    label:"Animals",    icon:"🐶" },
+    { id:"food",       label:"Food",       icon:"🍕" },
+    { id:"activities", label:"Activities", icon:"⚽" },
+    { id:"travel",     label:"Travel",     icon:"✈️" },
+    { id:"objects",    label:"Objects",    icon:"💡" },
+    { id:"symbols",    label:"Symbols",    icon:"✨" },
+    { id:"flags",      label:"Flags",      icon:"🏁" }
+  ];
+
+  const SKIN_TONES = ["\u{1F3FB}","\u{1F3FC}","\u{1F3FD}","\u{1F3FE}","\u{1F3FF}"];
+
+  /* =========================================================
+     2. STATE + DOM refs
+  ========================================================= */
+  let activeCat = "all";
+  let query = "";
+
+  const grid = document.getElementById("grid");
+  const emptyState = document.getElementById("empty");
+  const emptyTerm = document.getElementById("emptyTerm");
+  const countEl = document.getElementById("count");
+  const searchInput = document.getElementById("search");
+  const clearBtn = document.getElementById("clearBtn");
+  const catRow = document.getElementById("catRow");
+  const toast = document.getElementById("toast");
+  const toastMsg = document.getElementById("toastMsg");
+  const variantPop = document.getElementById("variantPop");
+
+  /* =========================================================
+     3. Build category buttons
+  ========================================================= */
+  CATS.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "cat-btn" + (cat.id === "all" ? " active" : "") + " " + cat.id;
+    btn.dataset.cat = cat.id;
+    btn.innerHTML = '<span class="ic">' + cat.icon + '</span>' + cat.label;
+    btn.addEventListener("click", () => {
+      activeCat = cat.id;
+      [...catRow.children].forEach(c => c.classList.toggle("active", c === btn));
+      render();
+    });
+    catRow.appendChild(btn);
+  });
+
+  /* =========================================================
+     4. Render grid
+  ========================================================= */
+  let toneMap = {}; // remembers selected tone per emoji
+
+  function matches(item){
+    const [ , keywords, cat ] = item;
+    if (activeCat !== "all" && cat !== activeCat) return false;
+    if (!query) return true;
+    return keywords.toLowerCase().includes(query) || cat.toLowerCase().includes(query);
+  }
+
+  function render(){
+    const list = DATA.filter(matches);
+    grid.innerHTML = "";
+    const frag = document.createDocumentFragment();
+
+    list.forEach((item, i) => {
+      const [emoji, keywords, cat, hasVariants] = item;
+      const tile = document.createElement("button");
+      tile.className = "tile";
+      tile.dataset.c = cat;
+      tile.style.setProperty("--r", ((i % 5) - 2) * 1.2 + "deg");
+      tile.setAttribute("aria-label", "Copy " + keywords.split(" ")[0]);
+      tile.setAttribute("title", keywords.split(" ").slice(0,3).join(" "));
+
+      const em = document.createElement("span");
+      em.className = "em";
+      em.textContent = toneMap[emoji] || emoji;
+      tile.appendChild(em);
+
+      if (hasVariants) {
+        const dot = document.createElement("span");
+        dot.className = "variant-dot";
+        tile.appendChild(dot);
+      }
+
+      tile.addEventListener("click", (e) => {
+        if (hasVariants) {
+          openVariantPicker(tile, emoji);
+        } else {
+          copyEmoji(emoji, tile);
+        }
+      });
+
+      frag.appendChild(tile);
+    });
+
+    grid.appendChild(frag);
+    countEl.textContent = list.length;
+    if (list.length === 0){
+      emptyState.classList.add("show");
+      emptyTerm.textContent = query ? '"' + query + '"' : "this category";
+    } else {
+      emptyState.classList.remove("show");
+    }
+  }
+
+  /* =========================================================
+     5. Skin-tone variant popup
+  ========================================================= */
+  function openVariantPicker(tile, baseEmoji){
+    variantPop.innerHTML = "";
+
+    const baseBtn = document.createElement("button");
+    baseBtn.textContent = toneMap[baseEmoji] || baseEmoji;
+    baseBtn.addEventListener("click", () => {
+      delete toneMap[baseEmoji];
+      copyEmoji(baseEmoji, tile);
+      closeVariantPicker();
+    });
+    variantPop.appendChild(baseBtn);
+
+    SKIN_TONES.forEach(tone => {
+      const variant = baseEmoji + tone;
+      const b = document.createElement("button");
+      b.textContent = variant;
+      b.addEventListener("click", () => {
+        toneMap[baseEmoji] = variant;
+        tile.querySelector(".em").textContent = variant;
+        copyEmoji(variant, tile);
+        closeVariantPicker();
+      });
+      variantPop.appendChild(b);
+    });
+
+    const r = tile.getBoundingClientRect();
+    variantPop.style.left = Math.min(
+      Math.max(r.left + r.width/2 - 130, 8),
+      window.innerWidth - 268
+    ) + "px";
+    let top = r.top - 62;
+    if (top < 8) top = r.bottom + 10;
+    variantPop.style.top = top + "px";
+    variantPop.classList.add("show");
+
+    setTimeout(() => document.addEventListener("click", outsideVariantClick, { once:true }), 0);
+  }
+  function outsideVariantClick(e){
+    if (!variantPop.contains(e.target)) closeVariantPicker();
+  }
+  function closeVariantPicker(){
+    variantPop.classList.remove("show");
+  }
+
+  /* =========================================================
+     6. Copy to clipboard + toast + sfx
+  ========================================================= */
+  let toastTimer = null;
+  function showToast(emoji, msg){
+    toastMsg.textContent = msg;
+    toast.querySelector(".em").textContent = emoji;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+  }
+
+  function copyEmoji(emoji, tile){
+    const done = () => {
+      showToast(emoji, "Copied " + emoji + " to clipboard!");
+      if (tile){
+        tile.classList.remove("copied");
+        void tile.offsetWidth;
+        tile.classList.add("copied");
+      }
+      playPop();
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(emoji).then(done).catch(() => fallbackCopy(emoji, done));
+    } else {
+      fallbackCopy(emoji, done);
+    }
+  }
+
+  function fallbackCopy(text, cb){
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch(e){}
+    document.body.removeChild(ta);
+    cb();
+  }
+
+  /* =========================================================
+     7. Search + clear
+  ========================================================= */
+  let searchTimer = null;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      query = searchInput.value.trim().toLowerCase();
+      render();
+    }, 90);
+  });
+  clearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    query = "";
+    searchInput.focus();
+    render();
+  });
+
+  /* =========================================================
+     8. Audio: ambient generative music + click SFX + volume
+     All synthesized with the Web Audio API — no audio files.
+  ========================================================= */
+  const musicBtn = document.getElementById("musicBtn");
+  const sfxBtn = document.getElementById("sfxBtn");
+  const volSlider = document.getElementById("volSlider");
+
+  let audioCtx = null;
+  let masterGain = null;
+  let musicGain = null;
+  let sfxGain = null;
+  let musicOn = true;
+  let sfxOn = true;
+  let musicLoopId = null;
+  let musicStarted = false;
+
+  const SCALE = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33]; // C major pentatonic-ish
+
+  function ensureAudio(){
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = volSlider.value / 100 * 0.5;
+    masterGain.connect(audioCtx.destination);
+
+    musicGain = audioCtx.createGain();
+    musicGain.gain.value = 0.5;
+    musicGain.connect(masterGain);
+
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = 0.9;
+    sfxGain.connect(masterGain);
+  }
+
+  function scheduleNote(time, freq, dur, gainNode, type){
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.exponentialRampToValueAtTime(0.35, time + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    osc.connect(g);
+    g.connect(gainNode);
+    osc.start(time);
+    osc.stop(time + dur + 0.05);
+  }
+
+  function musicTick(){
+    if (!audioCtx || !musicOn) return;
+    const now = audioCtx.currentTime;
+    // soft ambient pad chord
+    if (Math.random() < 0.5){
+      const root = SCALE[Math.floor(Math.random()*SCALE.length)];
+      scheduleNote(now + 0.02, root, 1.8, musicGain, "sine");
+      scheduleNote(now + 0.02, root * 1.5, 1.8, musicGain, "sine");
+    }
+    // occasional sparkle note
+    if (Math.random() < 0.65){
+      const note = SCALE[Math.floor(Math.random()*SCALE.length)] * 2;
+      scheduleNote(now + 0.4 + Math.random()*0.6, note, 0.9, musicGain, "triangle");
+    }
+  }
+
+  function startMusic(){
+    if (musicLoopId) return;
+    musicStarted = true;
+    musicTick();
+    musicLoopId = setInterval(musicTick, 1400);
+  }
+  function stopMusic(){
+    if (musicLoopId){ clearInterval(musicLoopId); musicLoopId = null; }
+  }
+
+  function playPop(){
+    if (!sfxOn) return;
+    ensureAudio();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(720, now);
+    osc.frequency.exponentialRampToValueAtTime(1180, now + 0.09);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.5, now + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    osc.connect(g);
+    g.connect(sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  }
+
+  function toggleMusic(){
+    ensureAudio();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    musicOn = !musicOn;
+    musicBtn.classList.toggle("on", musicOn);
+    musicBtn.textContent = musicOn ? "🎵" : "🔇";
+    if (musicOn) startMusic(); else stopMusic();
+  }
+
+  function toggleSfx(){
+    sfxOn = !sfxOn;
+    sfxBtn.classList.toggle("on", sfxOn);
+    sfxBtn.textContent = sfxOn ? "🔊" : "🔈";
+    if (sfxOn){ ensureAudio(); if (audioCtx.state === "suspended") audioCtx.resume(); playPop(); }
+  }
+
+  musicBtn.addEventListener("click", toggleMusic);
+  sfxBtn.addEventListener("click", toggleSfx);
+  volSlider.addEventListener("input", () => {
+    ensureAudio();
+    masterGain.gain.value = volSlider.value / 100 * 0.5;
+  });
+
+  // Start music lazily on first user gesture (autoplay policy compliant)
+  function firstGesture(){
+    ensureAudio();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    if (musicOn && !musicStarted) startMusic();
+    document.removeEventListener("pointerdown", firstGesture);
+    document.removeEventListener("keydown", firstGesture);
+  }
+  document.addEventListener("pointerdown", firstGesture);
+  document.addEventListener("keydown", firstGesture);
+
+  /* =========================================================
+     9. Init
+  ========================================================= */
+  render();
+})();
+</script>
+</body>
+</html>
