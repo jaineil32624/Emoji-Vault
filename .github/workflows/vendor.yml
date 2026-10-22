@@ -19,7 +19,6 @@ jobs:
       - name: Prepare vendor dir
         run: |
           mkdir -p vendor/fonts
-          curl -fsSL -o /dev/null https://fonts.googleapis.com
       - name: Download fonts (woff2) and rewrite CSS to local paths
         run: |
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
