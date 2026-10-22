@@ -4,9 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Emoji Vault — tap to copy</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<meta name="description" content="Emoji Vault — a playful sticker sheet of 400+ emoji. Search, tap to copy, build combos, save favorites and play Emoji Guess. Works offline on web and Android.">
+<meta name="theme-color" content="#F4F5EF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Emoji Vault">
+<meta property="og:title" content="Emoji Vault — tap to copy">
+<meta property="og:description" content="400+ emoji stickers: search, copy, combo, favorite and play.">
+<meta property="og:image" content="https://jaineil32624.github.io/Emoji-Vault/docs/screenshots/social.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="vendor/fonts.css">
 <style>
   :root{
     --bg:#F4F5EF;
@@ -198,11 +209,11 @@
   /* ---------- Grid ---------- */
   .grid{
     display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--tile-min, 68px), 1fr));
     gap: 10px;
   }
   @media (max-width:480px){
-    .grid{ grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap:8px; }
+    .grid{ grid-template-columns: repeat(auto-fill, minmax(calc(var(--tile-min, 68px) - 10px), 1fr)); gap:8px; }
   }
 
   .tile{
@@ -216,7 +227,7 @@
     border-radius: 14px;
     border: 2px dashed var(--line);
     cursor:pointer;
-    font-size: 30px;
+    font-size: var(--em-size, 30px);
     line-height:1;
     user-select:none;
     transition: transform .16s cubic-bezier(.34,1.56,.64,1), border-color .16s ease, box-shadow .16s ease;
@@ -391,6 +402,132 @@
     font-family:'JetBrains Mono', monospace;
   }
 
+
+  /* =========================================================
+     EXTRAS — dark theme, toolbar, combo tray, modals, game
+  ========================================================= */
+  html[data-theme="dark"]{
+    --bg:#16181f; --paper:#21242e; --ink:#EEF0F6; --ink-soft:#9AA0B4; --line:#353a49;
+    --shadow: 0 10px 24px -12px rgba(0,0,0,0.6);
+  }
+  html[data-theme="dark"] body{ background: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0) 0 0/22px 22px, var(--bg); }
+  html[data-theme="dark"] .controls{ background: rgba(22,24,31,0.86); }
+  html[data-theme="dark"] .cat-btn.active{ color:#16181f; }
+  html[data-theme="dark"] .toast, html[data-theme="dark"] .variant-pop, html[data-theme="dark"] .variant-pop::after{ background:#EEF0F6; color:#16181f; }
+  html[data-theme="dark"] .variant-pop button{ background:rgba(0,0,0,0.06); }
+  body{ transition: background-color .3s ease, color .3s ease; }
+
+  .stats{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:14px; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft); }
+  .stats span{ background:var(--paper); border:1px solid var(--line); padding:5px 10px; border-radius:999px; }
+
+  .cat-btn.active.favs{ background:var(--yellow); color:#1F2430; border-color:var(--yellow); }
+  .cat-btn.active.recent{ background:var(--lavender); border-color:var(--lavender); }
+
+  .tool-row{ display:flex; gap:8px; align-items:center; overflow-x:auto; padding:10px 2px 2px; scrollbar-width:none; }
+  .tool-row::-webkit-scrollbar{ display:none; }
+  .tool-btn{
+    flex:none; display:inline-flex; align-items:center; gap:6px; font:600 13px 'Inter', sans-serif; color:var(--ink);
+    background:var(--paper); border:1.5px dashed var(--line); padding:8px 12px; border-radius:12px; cursor:pointer;
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), border-color .15s ease, background .15s ease;
+  }
+  .tool-btn span{ font-size:15px; }
+  .tool-btn:hover{ transform:translateY(-2px) rotate(-1deg); border-style:solid; border-color:var(--ink); }
+  .tool-btn:active{ transform:scale(.95); }
+  .tool-btn.icon{ width:38px; height:36px; justify-content:center; padding:0; font-size:15px; }
+  .tool-btn.on{ background:var(--teal); color:#fff; border:1.5px solid var(--teal); }
+  .tool-btn.get{ margin-left:auto; background:linear-gradient(120deg, var(--yellow), #FFB36B); border:1.5px solid transparent; color:#1F2430; }
+  .size-ctl{ flex:none; display:inline-flex; align-items:center; gap:6px; background:var(--paper); border:1.5px dashed var(--line); padding:4px 10px; border-radius:12px; }
+  .size-ctl input{ width:80px; accent-color:var(--coral); }
+
+  /* tiles: entrance, favorites, spotlight */
+  .tile{ animation: tileIn .35s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes tileIn{ from{ opacity:0; transform: rotate(var(--r,0deg)) scale(.6); } }
+  .tile.fav::after{ content:"⭐"; position:absolute; top:-6px; right:-6px; font-size:13px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+  .tile.spot{ border-color:var(--coral); border-style:solid; box-shadow:0 0 0 6px rgba(255,107,94,.25); transform:rotate(0) scale(1.15); z-index:3; }
+  body.combo-on .tile{ border-color: rgba(47,156,143,.45); }
+  body.combo-on .tile:hover{ border-color: var(--teal); }
+
+  /* combo tray */
+  .tray{
+    position:fixed; left:50%; bottom:78px; transform:translate(-50%, 160%); width:min(640px, calc(100vw - 24px)); z-index:75;
+    background:var(--paper); border:1.5px solid var(--teal); border-radius:18px; padding:10px 12px; box-shadow:0 18px 40px -16px rgba(0,0,0,.45);
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1); visibility:hidden;
+  }
+  .tray.show{ transform:translate(-50%, 0); visibility:visible; }
+  .tray-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
+  .tray-head b{ color:var(--teal); font-size:13px; }
+  .tray-row{ display:flex; gap:6px; align-items:center; }
+  .tray-str{ flex:1; min-width:0; display:flex; gap:2px; overflow-x:auto; background:var(--bg); border-radius:12px; padding:6px 8px; min-height:44px; align-items:center; scrollbar-width:thin; }
+  .tray-str .ph{ color:var(--ink-soft); font-size:13px; white-space:nowrap; }
+  .tray-str .chip{ border:none; background:transparent; font-size:26px; cursor:pointer; border-radius:8px; padding:2px; animation: tileIn .3s cubic-bezier(.34,1.56,.64,1); }
+  .tray-str .chip:hover{ background:rgba(255,107,94,.15); }
+  .tray-btn{ flex:none; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); height:44px; min-width:44px; border-radius:12px; cursor:pointer; font:600 13px 'Inter', sans-serif; }
+  .tray-btn.primary{ background:var(--teal); color:#fff; border-color:var(--teal); padding:0 14px; }
+  .tray-btn:hover{ transform:translateY(-1px); }
+  @media (max-width:560px){ .tray-head span{ display:none; } }
+  kbd{ font-family:'JetBrains Mono', monospace; font-size:11px; background:var(--bg); border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 6px; color:var(--ink); }
+
+  /* modals */
+  .modal-ov{ position:fixed; inset:0; z-index:90; background:rgba(20,22,30,.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; pointer-events:none; transition: opacity .2s ease; }
+  .modal-ov.show{ opacity:1; pointer-events:auto; }
+  .modal{ position:relative; width:min(460px, 100%); max-height:calc(100vh - 32px); overflow-y:auto; background:var(--paper); color:var(--ink); border-radius:24px; padding:24px;
+    border:2px dashed var(--line); box-shadow:0 30px 70px -24px rgba(0,0,0,.5); transform: translateY(14px) scale(.96); transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+  .modal-ov.show .modal{ transform:none; }
+  .modal.shake{ animation: mshake .4s ease; }
+  @keyframes mshake{ 20%{ transform:translateX(-7px);} 40%{ transform:translateX(7px);} 60%{ transform:translateX(-4px);} 80%{ transform:translateX(3px);} }
+  .modal h3{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:26px; margin:4px 0 10px; text-align:center; text-transform:capitalize; }
+  .m-x{ position:absolute; top:12px; right:12px; width:34px; height:34px; border-radius:50%; border:none; background:var(--bg); color:var(--ink-soft); cursor:pointer; font-size:14px; }
+  .m-x:hover{ color:var(--ink); }
+  .big-em{ font-size:96px; text-align:center; line-height:1.1; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-3deg);} 50%{ transform:translateY(-8px) rotate(3deg);} }
+  .tags{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-bottom:14px; }
+  .tag{ border:1px solid var(--line); background:var(--bg); color:var(--ink-soft); border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; }
+  .tag:hover{ border-color:var(--ink); color:var(--ink); }
+  .meta{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:14px; }
+  .meta div{ background:var(--bg); border-radius:12px; padding:8px; text-align:center; }
+  .meta span{ display:block; font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; }
+  .meta b{ font-family:'JetBrains Mono', monospace; font-size:12px; word-break:break-all; }
+  .d-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .d-btn{ border:1.5px solid var(--line); background:var(--paper); color:var(--ink); border-radius:12px; padding:10px; font:600 13px 'Inter', sans-serif; cursor:pointer;
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), border-color .15s ease; }
+  .d-btn:hover{ transform:translateY(-2px); border-color:var(--ink); }
+  .d-btn.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .d-btn.on{ background:var(--yellow); color:#1F2430; border-color:var(--yellow); }
+  .related{ margin-top:14px; }
+  .related > span{ font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.08em; }
+  .related div{ display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+  .related button{ border:none; background:var(--bg); border-radius:10px; font-size:24px; width:42px; height:42px; cursor:pointer; transition: transform .15s ease; }
+  .related button:hover{ transform:scale(1.12); }
+  .muted{ color:var(--ink-soft); font-size:13px; text-align:center; margin:12px 0 0; }
+  .keys{ display:grid; gap:7px; font-size:13px; }
+  .keys div{ display:flex; align-items:center; gap:5px; }
+  .keys span{ margin-left:auto; color:var(--ink-soft); }
+  .dl-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .dl{ display:flex; flex-direction:column; gap:2px; text-align:left; text-decoration:none; color:var(--ink); background:var(--bg); border:1.5px dashed var(--line); border-radius:16px; padding:14px; cursor:pointer; font:inherit;
+    transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .15s ease; }
+  a.dl:hover, button.dl:hover{ transform:translateY(-3px) rotate(-1deg); border-style:solid; border-color:var(--ink); }
+  .dl span{ font-size:24px; } .dl b{ font-size:14px; } .dl small{ color:var(--ink-soft); font-size:11.5px; }
+
+  /* game */
+  .g-top{ display:flex; justify-content:space-between; gap:8px; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft); padding-right:40px; }
+  .g-top b{ color:var(--ink); }
+  .g-bar{ height:8px; background:var(--bg); border-radius:8px; margin:12px 0 4px; overflow:hidden; }
+  .g-bar i{ display:block; height:100%; width:100%; background:linear-gradient(90deg, var(--coral), var(--yellow), var(--teal)); border-radius:8px; transition: width .08s linear; }
+  .g-clue{ text-align:center; font-size:17px; margin:16px 0; }
+  .g-clue b{ font-family:'Baloo 2', sans-serif; font-size:21px; }
+  .g-opts{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .g-opt{ position:relative; font-size:52px; height:96px; border-radius:18px; border:2px dashed var(--line); background:var(--bg); cursor:pointer;
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), border-color .15s ease; }
+  .g-opt .k{ position:absolute; top:6px; left:9px; font:600 11px 'JetBrains Mono', monospace; color:var(--ink-soft); }
+  .g-opt:hover:not(:disabled){ transform:translateY(-3px) rotate(-2deg); border-color:var(--ink); border-style:solid; }
+  .g-opt.right{ border:2px solid var(--teal); background:rgba(47,156,143,.15); animation: pop .45s ease; }
+  .g-opt.wrong{ border:2px solid var(--coral); background:rgba(255,107,94,.12); }
+  .g-hint{ text-align:center; color:var(--ink-soft); font-size:12px; margin:14px 0 0; }
+  .g-over{ text-align:center; } .g-over p{ color:var(--ink-soft); }
+
+  .burst-layer{ position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:95; }
+
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{
       animation-duration: 0.001ms !important;
@@ -407,6 +544,7 @@
     <span class="eyebrow"><span class="dot"></span> tap any sticker to copy</span>
     <h1>Emoji <span>🗂️</span> Vault</h1>
     <p>A little sticker sheet of emoji. Search by name or mood, filter by category, tap to copy — it lands straight on your clipboard.</p>
+    <div class="stats" id="stats"></div>
   </div>
 
   <div class="controls">
@@ -417,6 +555,15 @@
       <span class="result-count" id="count">0</span>
     </div>
     <div class="cat-row" id="catRow"></div>
+    <div class="tool-row">
+      <button class="tool-btn" id="surpriseBtn" title="Copy a random emoji (R)"><span>🎲</span>Surprise me</button>
+      <button class="tool-btn" id="comboBtn" title="Build an emoji string (C)"><span>🧩</span>Combo</button>
+      <button class="tool-btn" id="gameBtn" title="Play Emoji Guess (G)"><span>🎮</span>Play</button>
+      <label class="size-ctl" title="Sticker size"><span>🔍</span><input type="range" id="sizeSlider" min="22" max="48" value="30" aria-label="Sticker size"></label>
+      <button class="tool-btn icon" id="themeBtn" title="Light / dark (D)" aria-label="Toggle dark mode">🌙</button>
+      <button class="tool-btn icon" id="helpBtn" title="Shortcuts (?)" aria-label="Keyboard shortcuts">?</button>
+      <button class="tool-btn get" id="installBtn" title="Install Emoji Vault"><span>⬇</span>Get the app</button>
+    </div>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -427,6 +574,21 @@
 
   <footer>build your own sheet — no backend, just html · css · js</footer>
 </div>
+
+<div class="tray" id="tray" aria-live="polite">
+  <div class="tray-head"><b>🧩 Combo</b><span>tap stickers to add · <kbd>Backspace</kbd> removes</span></div>
+  <div class="tray-row">
+    <div class="tray-str" id="trayStr"><span class="ph">Your combo appears here…</span></div>
+    <button class="tray-btn" id="trayBack" title="Remove last" aria-label="Remove last">⌫</button>
+    <button class="tray-btn" id="trayClear" title="Clear" aria-label="Clear combo">🗑️</button>
+    <button class="tray-btn primary" id="trayCopy">Copy all</button>
+  </div>
+</div>
+
+<div class="modal-ov" id="detailsOv"><div class="modal details" role="dialog" aria-label="Emoji details"></div></div>
+<div class="modal-ov" id="gameOv"><div class="modal game" role="dialog" aria-label="Emoji Guess"></div></div>
+<div class="modal-ov" id="infoOv"><div class="modal info" role="dialog"></div></div>
+<canvas class="burst-layer" id="burstLayer"></canvas>
 
 <div class="toast" id="toast"><span class="em">✨</span><span id="toastMsg">Copied!</span></div>
 <div class="variant-pop" id="variantPop"></div>
@@ -897,6 +1059,8 @@
 
   const CATS = [
     { id:"all",        label:"All",        icon:"🗂️" },
+    { id:"favs",       label:"Favorites",  icon:"⭐" },
+    { id:"recent",     label:"Recent",     icon:"🕘" },
     { id:"faces",      label:"Faces",      icon:"😀" },
     { id:"hearts",     label:"Hearts",     icon:"❤️" },
     { id:"animals",    label:"Animals",    icon:"🐶" },
@@ -909,6 +1073,20 @@
   ];
 
   const SKIN_TONES = ["\u{1F3FB}","\u{1F3FC}","\u{1F3FD}","\u{1F3FE}","\u{1F3FF}"];
+  // emoji that accept Fitzpatrick skin-tone modifiers
+  const TONEABLE = new Set([..."👋🤚🖐✋🖖👌🤌🤏✌🤞🤟🤘🤙👈👉👆🖕👇☝👍👎✊👊🤛🤜👏🙌👐🤲🙏✍💅🤳💪🦵🦶👂🦻👃👶🧒👦👧🧑👱👨🧔👩🧓👴👵🙍🙎🙅🙆💁🙋🧏🙇🤦🤷👮🕵💂🥷👷🤴👸👳👲🧕🤵👰🤰🤱👼🎅🤶🦸🦹🧙🧚🧛🧜🧝💆💇🚶🧍🧎🏃💃🕺🧗🏇🏂🏌🏄🚣🏊⛹🏋🚴🚵🤸🤽🤾🤹🧘🛀🛌"]);
+  const stripVS = e => e.replace(/\uFE0F/g, "");
+  DATA.forEach(item => { const b = stripVS(item[0]); if ([...b].length === 1 && TONEABLE.has(b)) { item[0] = b; item[3] = true; } });
+
+  /* ---- saved state: favorites, recents, copy counts, prefs ---- */
+  const STORE_KEY = "emojiVault.v2";
+  const ST = (() => { try { return Object.assign({ favs: [], recent: [], counts: {}, theme: "", size: 30, best: 0, onboarded: false }, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); } catch (e) { return { favs: [], recent: [], counts: {}, theme: "", size: 30, best: 0, onboarded: false }; } })();
+  function persist(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(ST)); } catch (e) {} }
+  const isFav = e => ST.favs.includes(e);
+  const BASE_OF = new Map(DATA.map(d => [d[0], d]));
+  function baseOf(e){ // strip tone so favorites / details find the catalog entry
+    let b = e; SKIN_TONES.forEach(t => { b = b.split(t).join(""); }); return BASE_OF.get(b) || BASE_OF.get(stripVS(b)) || null;
+  }
 
   /* =========================================================
      2. STATE + DOM refs
@@ -949,14 +1127,20 @@
   let toneMap = {}; // remembers selected tone per emoji
 
   function matches(item){
-    const [ , keywords, cat ] = item;
-    if (activeCat !== "all" && cat !== activeCat) return false;
+    const [ emoji, keywords, cat ] = item;
+    if (activeCat === "favs") { if (!isFav(emoji)) return false; }
+    else if (activeCat === "recent") { if (!ST.recent.some(r => { const b = baseOf(r); return b && b[0] === emoji; })) return false; }
+    else if (activeCat !== "all" && cat !== activeCat) return false;
     if (!query) return true;
-    return keywords.toLowerCase().includes(query) || cat.toLowerCase().includes(query);
+    return query.split(/\s+/).every(w => keywords.toLowerCase().includes(w) || cat.toLowerCase().includes(w) || emoji.includes(w));
   }
 
   function render(){
-    const list = DATA.filter(matches);
+    let list = DATA.filter(matches);
+    if (activeCat === "recent") {
+      const rank = e => ST.recent.findIndex(r => { const b = baseOf(r); return b && b[0] === e; });
+      list = list.slice().sort((a, b) => rank(a[0]) - rank(b[0]));
+    }
     grid.innerHTML = "";
     const frag = document.createDocumentFragment();
 
@@ -967,7 +1151,10 @@
       tile.dataset.c = cat;
       tile.style.setProperty("--r", ((i % 5) - 2) * 1.2 + "deg");
       tile.setAttribute("aria-label", "Copy " + keywords.split(" ")[0]);
-      tile.setAttribute("title", keywords.split(" ").slice(0,3).join(" "));
+      tile.setAttribute("title", keywords.split(" ").slice(0,3).join(" ") + " — right-click or hold for details");
+      tile.dataset.e = emoji;
+      tile.style.animationDelay = Math.min(i, 40) * 12 + "ms";
+      if (isFav(emoji)) tile.classList.add("fav");
 
       const em = document.createElement("span");
       em.className = "em";
@@ -981,21 +1168,27 @@
       }
 
       tile.addEventListener("click", (e) => {
-        if (hasVariants) {
+        if (tile._longPressed) { tile._longPressed = false; return; }
+        if (hasVariants && !e.shiftKey) {
           openVariantPicker(tile, emoji);
         } else {
-          copyEmoji(emoji, tile);
+          pick(toneMap[emoji] || emoji, tile, e);
         }
       });
+      tile.addEventListener("contextmenu", (e) => { e.preventDefault(); openDetails(toneMap[emoji] || emoji); });
+      let lpTimer = null;
+      tile.addEventListener("touchstart", () => { lpTimer = setTimeout(() => { tile._longPressed = true; if (navigator.vibrate) navigator.vibrate(12); openDetails(toneMap[emoji] || emoji); }, 480); }, { passive: true });
+      ["touchend","touchmove","touchcancel"].forEach(ev => tile.addEventListener(ev, () => clearTimeout(lpTimer), { passive: true }));
 
       frag.appendChild(tile);
     });
 
     grid.appendChild(frag);
     countEl.textContent = list.length;
+    if (typeof updateStats === "function") updateStats();
     if (list.length === 0){
       emptyState.classList.add("show");
-      emptyTerm.textContent = query ? '"' + query + '"' : "this category";
+      emptyTerm.textContent = query ? '"' + query + '"' : activeCat === "favs" ? "yet — right-click or hold a sticker and tap ⭐" : activeCat === "recent" ? "yet — copy something first" : "this category";
     } else {
       emptyState.classList.remove("show");
     }
@@ -1011,7 +1204,8 @@
     baseBtn.textContent = toneMap[baseEmoji] || baseEmoji;
     baseBtn.addEventListener("click", () => {
       delete toneMap[baseEmoji];
-      copyEmoji(baseEmoji, tile);
+      tile.querySelector(".em").textContent = baseEmoji;
+      pick(baseEmoji, tile);
       closeVariantPicker();
     });
     variantPop.appendChild(baseBtn);
@@ -1023,7 +1217,7 @@
       b.addEventListener("click", () => {
         toneMap[baseEmoji] = variant;
         tile.querySelector(".em").textContent = variant;
-        copyEmoji(variant, tile);
+        pick(variant, tile);
         closeVariantPicker();
       });
       variantPop.appendChild(b);
@@ -1063,6 +1257,10 @@
   function copyEmoji(emoji, tile){
     const done = () => {
       showToast(emoji, "Copied " + emoji + " to clipboard!");
+      ST.recent = [emoji].concat(ST.recent.filter(r => r !== emoji)).slice(0, 48);
+      ST.counts[emoji] = (ST.counts[emoji] || 0) + 1; persist();
+      if (tile) burst(emoji, tile);
+      if (typeof updateStats === "function") updateStats();
       if (tile){
         tile.classList.remove("copied");
         void tile.offsetWidth;
@@ -1235,6 +1433,276 @@
   }
   document.addEventListener("pointerdown", firstGesture);
   document.addEventListener("keydown", firstGesture);
+
+
+  /* =========================================================
+     8b. INTERACTIVE EXTRAS — combo builder, favorites, details,
+     surprise, Emoji Guess game, theme, size, keyboard, install
+  ========================================================= */
+  const $ = id => document.getElementById(id);
+  let comboMode = false, combo = [];
+
+  function pick(emoji, tile, ev){
+    if (comboMode || (ev && ev.shiftKey)) { addToCombo(emoji, tile); return; }
+    copyEmoji(emoji, tile);
+  }
+
+  /* ---- burst particles on copy ---- */
+  const layer = $("burstLayer"), lctx = layer.getContext("2d");
+  let parts = [], burstRAF = null;
+  function sizeLayer(){ const d = devicePixelRatio || 1; layer.width = innerWidth * d; layer.height = innerHeight * d; lctx.setTransform(d,0,0,d,0,0); }
+  sizeLayer(); addEventListener("resize", sizeLayer);
+  function burst(emoji, tile, n){
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = tile.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+    for (let i = 0; i < (n || 9); i++){
+      const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 5;
+      parts.push({ e: emoji, x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 3, life: 1, s: 14 + Math.random() * 12, r: Math.random() * 6, vr: (Math.random() - .5) * .3 });
+    }
+    if (!burstRAF) burstRAF = requestAnimationFrame(stepBurst);
+  }
+  function stepBurst(){
+    lctx.clearRect(0, 0, innerWidth, innerHeight);
+    parts = parts.filter(p => p.life > 0);
+    parts.forEach(p => {
+      p.vy += 0.25; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= 0.022;
+      lctx.save(); lctx.globalAlpha = Math.max(0, p.life); lctx.translate(p.x, p.y); lctx.rotate(p.r);
+      lctx.font = p.s + "px system-ui, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji'"; lctx.textAlign = "center"; lctx.textBaseline = "middle";
+      lctx.fillText(p.e, 0, 0); lctx.restore();
+    });
+    burstRAF = parts.length ? requestAnimationFrame(stepBurst) : null;
+    if (!burstRAF) lctx.clearRect(0, 0, innerWidth, innerHeight);
+  }
+  function confettiRain(){
+    const pool = ["🎉","✨","⭐","🥳","💥","🌈"];
+    for (let i = 0; i < 40; i++) parts.push({ e: pool[i % pool.length], x: Math.random() * innerWidth, y: -20 - Math.random() * 200, vx: (Math.random() - .5) * 2, vy: Math.random() * 3, life: 1.6, s: 18 + Math.random() * 14, r: 0, vr: (Math.random() - .5) * .2 });
+    if (!burstRAF) burstRAF = requestAnimationFrame(stepBurst);
+  }
+
+  /* ---- stats line ---- */
+  function updateStats(){
+    const total = Object.values(ST.counts).reduce((a, b) => a + b, 0);
+    const top = Object.entries(ST.counts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0]).join("");
+    $("stats").innerHTML = `<span>📚 ${DATA.length} stickers</span><span>📋 ${total} copied</span><span>⭐ ${ST.favs.length} favorites</span>${top ? `<span>🔥 top: ${top}</span>` : ""}${ST.best ? `<span>🏆 best game: ${ST.best}</span>` : ""}`;
+  }
+
+  /* ---- combo builder ---- */
+  const tray = $("tray"), trayStr = $("trayStr");
+  function renderCombo(){
+    trayStr.innerHTML = combo.length ? combo.map((e, i) => `<button class="chip" data-i="${i}" title="Remove">${e}</button>`).join("") : `<span class="ph">Tap stickers to build a combo…</span>`;
+    trayStr.scrollLeft = trayStr.scrollWidth;
+    trayStr.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { combo.splice(+c.dataset.i, 1); renderCombo(); }));
+  }
+  function addToCombo(emoji, tile){
+    if (!comboMode) setCombo(true);
+    combo.push(emoji); renderCombo(); playPop();
+    if (tile){ tile.classList.remove("copied"); void tile.offsetWidth; tile.classList.add("copied"); burst(emoji, tile, 4); }
+  }
+  function setCombo(on){
+    comboMode = on; tray.classList.toggle("show", on); $("comboBtn").classList.toggle("on", on);
+    document.body.classList.toggle("combo-on", on);
+    if (on) showToast("🧩", "Combo mode: tap stickers to build a string");
+  }
+  $("comboBtn").addEventListener("click", () => setCombo(!comboMode));
+  $("trayBack").addEventListener("click", () => { combo.pop(); renderCombo(); });
+  $("trayClear").addEventListener("click", () => { combo = []; renderCombo(); });
+  $("trayCopy").addEventListener("click", () => {
+    if (!combo.length) return;
+    const str = combo.join(""); copyEmoji(str, null);
+    combo.forEach(e => { ST.counts[e] = (ST.counts[e] || 0) + 1; }); persist(); updateStats();
+  });
+  renderCombo();
+
+  /* ---- modals ---- */
+  function openModal(id, html){
+    const ov = $(id); ov.querySelector(".modal").innerHTML = html + `<button class="m-x" data-close aria-label="Close">✕</button>`;
+    ov.classList.add("show"); return ov;
+  }
+  document.querySelectorAll(".modal-ov").forEach(ov => ov.addEventListener("click", e => { if (e.target === ov || e.target.closest("[data-close]")) closeModal(ov); }));
+  function closeModal(ov){ ov.classList.remove("show"); if (ov.id === "gameOv") { gameStop(); G = null; } }
+
+  /* ---- details sheet ---- */
+  function codepoints(e){ return [...e].map(c => "U+" + c.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")).join(" "); }
+  function entities(e){ return [...e].map(c => "&#x" + c.codePointAt(0).toString(16).toUpperCase() + ";").join(""); }
+  function openDetails(emoji){
+    const item = baseOf(emoji); if (!item) return;
+    const base = item[0], words = item[1].split(" "), fav = isFav(base);
+    const used = ST.counts[emoji] || 0;
+    const related = DATA.filter(d => d !== item && d[2] === item[2] && d[1].split(" ").some(w => w.length > 3 && words.includes(w))).slice(0, 10);
+    const ov = openModal("detailsOv", `
+      <div class="big-em">${emoji}</div>
+      <h3>${words.slice(0, 3).join(" ")}</h3>
+      <div class="tags">${words.map(w => `<button class="tag" data-q="${w}">${w}</button>`).join("")}</div>
+      <div class="meta"><div><span>category</span><b>${item[2]}</b></div><div><span>code</span><b>${codepoints(emoji)}</b></div><div><span>copied</span><b>${used}×</b></div></div>
+      <div class="d-actions">
+        <button class="d-btn primary" data-act="copy">📋 Copy</button>
+        <button class="d-btn ${fav ? "on" : ""}" data-act="fav">${fav ? "⭐ Favorited" : "☆ Favorite"}</button>
+        <button class="d-btn" data-act="combo">🧩 Add to combo</button>
+        <button class="d-btn" data-act="code">🔢 Copy code</button>
+        <button class="d-btn" data-act="html">&lt;/&gt; Copy HTML</button>
+        <button class="d-btn" data-act="share">🔗 Share</button>
+      </div>
+      ${related.length ? `<div class="related"><span>Related</span><div>${related.map(r => `<button data-rel="${r[0]}">${r[0]}</button>`).join("")}</div></div>` : ""}`);
+    const m = ov.querySelector(".modal");
+    m.querySelectorAll("[data-q]").forEach(t => t.addEventListener("click", () => { closeModal(ov); searchInput.value = t.dataset.q; query = t.dataset.q; selectCat("all"); render(); }));
+    m.querySelectorAll("[data-rel]").forEach(t => t.addEventListener("click", () => openDetails(t.dataset.rel)));
+    m.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => {
+      const act = b.dataset.act;
+      if (act === "copy") { copyEmoji(emoji, null); burst(emoji, m.querySelector(".big-em"), 14); }
+      else if (act === "fav") { toggleFav(base); openDetails(emoji); }
+      else if (act === "combo") { addToCombo(emoji, null); closeModal(ov); }
+      else if (act === "code") { fallbackCopyText(codepoints(emoji), "Copied " + codepoints(emoji)); }
+      else if (act === "html") { fallbackCopyText(entities(emoji), "Copied HTML entity"); }
+      else if (act === "share") { shareText(emoji + " — found in Emoji Vault", location.origin + location.pathname + "?q=" + encodeURIComponent(words[0])); }
+    }));
+  }
+  function fallbackCopyText(text, msg){
+    const done = () => { showToast("✅", msg); playPop(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    else fallbackCopy(text, done);
+  }
+  async function shareText(text, url){
+    try { if (navigator.share) { await navigator.share({ title: "Emoji Vault", text, url }); return; } } catch (e) { if (e.name === "AbortError") return; }
+    fallbackCopyText(url, "🔗 Link copied");
+  }
+  function toggleFav(base){
+    ST.favs = isFav(base) ? ST.favs.filter(f => f !== base) : [base].concat(ST.favs);
+    persist(); showToast(isFav(base) ? "⭐" : "☆", isFav(base) ? "Added to favorites" : "Removed from favorites");
+    render();
+  }
+
+  /* ---- surprise me ---- */
+  function surprise(){
+    const pool = DATA.filter(matches); const list = pool.length ? pool : DATA;
+    const item = list[Math.floor(Math.random() * list.length)];
+    const tile = grid.querySelector(`.tile[data-e="${CSS.escape(item[0])}"]`);
+    if (tile){ tile.scrollIntoView({ block: "center", behavior: "smooth" }); tile.classList.add("spot"); setTimeout(() => tile.classList.remove("spot"), 1400); }
+    setTimeout(() => pick(item[0], tile || null), tile ? 350 : 0);
+  }
+  $("surpriseBtn").addEventListener("click", surprise);
+
+  /* ---- Emoji Guess game ---- */
+  let G = null;
+  function gameStart(){
+    const pool = DATA.filter(d => d[2] !== "flags" || Math.random() < 0.3);
+    G = { round: 0, score: 0, streak: 0, total: 10, pool, timer: null };
+    gameRound();
+  }
+  function gameStop(){ if (G && G.timer) clearInterval(G.timer); }
+  function gameRound(){
+    gameStop();
+    if (G.round >= G.total) return gameOver();
+    G.round++;
+    const shuffled = G.pool.slice().sort(() => Math.random() - .5);
+    const answer = shuffled[0], opts = [answer];
+    const aw = new Set(answer[1].split(" ").filter(w => w !== "face" && w.length > 2));
+    const distinct = d => !d[1].split(" ").some(w => aw.has(w));
+    for (const d of shuffled) { if (opts.length >= 4) break; if (d[2] === answer[2] && d !== answer && distinct(d) && !opts.includes(d)) opts.push(d); }
+    for (const d of shuffled) { if (opts.length >= 4) break; if (distinct(d) && !opts.includes(d)) opts.push(d); }
+    opts.sort(() => Math.random() - .5);
+    const clue = answer[1].split(" ").slice(0, 3).join(" ");
+    G.left = 100;
+    const ov = openModal("gameOv", `
+      <div class="g-top"><span>🎮 Emoji Guess</span><span>Round <b>${G.round}</b>/${G.total}</span><span>Score <b>${G.score}</b></span><span>🔥 ${G.streak}</span></div>
+      <div class="g-bar"><i id="gBar"></i></div>
+      <p class="g-clue">Which sticker is <b>“${clue}”</b>?</p>
+      <div class="g-opts">${opts.map((o, i) => `<button class="g-opt" data-ok="${o === answer ? 1 : 0}"><span class="k">${i + 1}</span>${o[0]}</button>`).join("")}</div>
+      <p class="g-hint">Faster answers score more · keys <kbd>1</kbd>–<kbd>4</kbd></p>`);
+    const bar = ov.querySelector("#gBar");
+    G.timer = setInterval(() => { G.left -= 1; bar.style.width = G.left + "%"; if (G.left <= 0) answerGame(null, ov); }, 80);
+    ov.querySelectorAll(".g-opt").forEach(b => b.addEventListener("click", () => answerGame(b, ov)));
+  }
+  function answerGame(btn, ov){
+    gameStop();
+    const ok = btn && btn.dataset.ok === "1";
+    ov.querySelectorAll(".g-opt").forEach(b => { b.disabled = true; if (b.dataset.ok === "1") b.classList.add("right"); });
+    if (btn && !ok) btn.classList.add("wrong");
+    if (ok) { G.streak++; const pts = 50 + Math.round(G.left) + (G.streak > 1 ? 10 * G.streak : 0); G.score += pts; playPop(); burst(btn.textContent.slice(1), btn, 10); }
+    else { G.streak = 0; ov.querySelector(".modal").classList.add("shake"); }
+    setTimeout(() => G && gameRound(), ok ? 650 : 1100);
+  }
+  function gameOver(){
+    const isBest = G.score > ST.best; if (isBest) { ST.best = G.score; persist(); updateStats(); }
+    const ov = openModal("gameOv", `<div class="g-over"><div class="big-em">${G.score > 900 ? "🏆" : G.score > 500 ? "🥳" : "🙂"}</div>
+      <h3>${G.score} points</h3><p>${isBest ? "🎉 New personal best!" : "Best: " + ST.best}</p>
+      <div class="d-actions"><button class="d-btn primary" id="gAgain">🔁 Play again</button><button class="d-btn" id="gShare">🔗 Share score</button></div></div>`);
+    if (isBest) confettiRain();
+    ov.querySelector("#gAgain").addEventListener("click", gameStart);
+    ov.querySelector("#gShare").addEventListener("click", () => shareText(`I scored ${G.score} in Emoji Guess 🎮 Can you beat me?`, location.origin + location.pathname));
+  }
+  $("gameBtn").addEventListener("click", gameStart);
+
+  /* ---- theme + size ---- */
+  function applyTheme(){
+    const dark = ST.theme ? ST.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = dark ? "dark" : "light"; $("themeBtn").textContent = dark ? "☀️" : "🌙";
+    const mt = document.querySelector('meta[name="theme-color"]'); if (mt) mt.content = dark ? "#16181f" : "#F4F5EF";
+  }
+  $("themeBtn").addEventListener("click", () => { ST.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; persist(); applyTheme(); });
+  const sizeSlider = $("sizeSlider");
+  function applySize(){ document.documentElement.style.setProperty("--em-size", ST.size + "px"); document.documentElement.style.setProperty("--tile-min", Math.round(ST.size * 2.25) + "px"); sizeSlider.value = ST.size; }
+  sizeSlider.addEventListener("input", () => { ST.size = +sizeSlider.value; applySize(); persist(); });
+  applyTheme(); applySize();
+
+  /* ---- install / help ---- */
+  let deferredInstall = null;
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; });
+  $("installBtn").addEventListener("click", () => {
+    const ov = openModal("infoOv", `<h3>📲 Get Emoji Vault</h3><div class="dl-grid">
+      <a class="dl" href="https://github.com/jaineil32624/Emoji-Vault/releases/latest/download/EmojiVault.apk"><span>🤖</span><b>Android</b><small>Download the APK</small></a>
+      <button class="dl" id="pwaBtn"><span>💻</span><b>Install app</b><small>Chrome / Edge</small></button>
+      <div class="dl"><span>🍎</span><b>iPhone / iPad</b><small>Safari → Share → Add to Home Screen</small></div>
+      <a class="dl" href="https://github.com/jaineil32624/Emoji-Vault/releases/latest"><span>📦</span><b>All downloads</b><small>APK + offline zip</small></a></div>
+      <p class="muted">Works offline once installed. No account, no ads.</p>`);
+    ov.querySelector("#pwaBtn").addEventListener("click", async () => {
+      if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; closeModal(ov); }
+      else showToast("💡", "Use your browser menu → Install app / Add to Home screen");
+    });
+  });
+  function openHelp(){
+    openModal("infoOv", `<h3>⌨️ Shortcuts & tricks</h3><div class="keys">
+      <div><kbd>/</kbd><span>Search</span></div><div><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd><span>Move between stickers</span></div>
+      <div><kbd>Enter</kbd><span>Copy focused sticker</span></div><div><kbd>Shift</kbd>+click<span>Add to combo</span></div>
+      <div><kbd>C</kbd><span>Combo mode</span></div><div><kbd>R</kbd><span>Surprise me</span></div><div><kbd>G</kbd><span>Emoji Guess game</span></div>
+      <div><kbd>F</kbd><span>Favorite focused sticker</span></div><div><kbd>D</kbd><span>Dark mode</span></div>
+      <div>Right-click / hold<span>Details, codes & favorite</span></div></div>`);
+  }
+  $("helpBtn").addEventListener("click", openHelp);
+
+  /* ---- keyboard ---- */
+  function selectCat(id){ activeCat = id; [...catRow.children].forEach(c => c.classList.toggle("active", c.dataset.cat === id)); }
+  document.addEventListener("keydown", e => {
+    const open = document.querySelector(".modal-ov.show");
+    if (e.key === "Escape") { if (open) closeModal(open); else if (comboMode) setCombo(false); else closeVariantPicker(); return; }
+    if (open && open.id === "gameOv" && /^[1-4]$/.test(e.key)) { const b = open.querySelectorAll(".g-opt")[+e.key - 1]; if (b && !b.disabled) b.click(); return; }
+    if (open) return;
+    const typing = document.activeElement === searchInput;
+    if (typing) { if (e.key === "ArrowDown") { e.preventDefault(); const f = grid.querySelector(".tile"); if (f) f.focus(); } return; }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "/") { e.preventDefault(); searchInput.focus(); searchInput.select(); return; }
+    if (e.key === "?") return openHelp();
+    if (comboMode && e.key === "Backspace") { e.preventDefault(); combo.pop(); renderCombo(); return; }
+    const k = e.key.toLowerCase();
+    if (k === "c") return setCombo(!comboMode);
+    if (k === "r") return surprise();
+    if (k === "g") return gameStart();
+    if (k === "d") return $("themeBtn").click();
+    const cur = document.activeElement && document.activeElement.classList.contains("tile") ? document.activeElement : null;
+    if (k === "f" && cur) return toggleFav(cur.dataset.e);
+    if (cur && ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key)) {
+      e.preventDefault();
+      const tiles = [...grid.querySelectorAll(".tile")], i = tiles.indexOf(cur);
+      const top = cur.offsetTop, cols = tiles.filter(t => t.offsetTop === top).length || 1;
+      const j = e.key === "ArrowLeft" ? i - 1 : e.key === "ArrowRight" ? i + 1 : e.key === "ArrowUp" ? i - cols : i + cols;
+      if (tiles[j]) { tiles[j].focus(); tiles[j].scrollIntoView({ block: "nearest" }); }
+    }
+  });
+
+  /* ---- ?q= deep links + first-visit tip + offline ---- */
+  const qp = new URLSearchParams(location.search).get("q");
+  if (qp) { searchInput.value = qp; query = qp.toLowerCase(); }
+  if (!ST.onboarded) { ST.onboarded = true; persist(); setTimeout(() => showToast("💡", "Tip: hold or right-click a sticker for details & ⭐"), 1800); }
+  if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 
   /* =========================================================
      9. Init
